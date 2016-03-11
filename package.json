@@ -1,0 +1,23 @@
+{
+  "name": "safe-json-serialiser",
+  "version": "0.0.1",
+  "description": "Safely convert an object with circular references to JSON",
+  "main": "serialiser.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MartinDoyleUK/safe-json-serialiser.git"
+  },
+  "keywords": [
+    "json",
+    "circular"
+  ],
+  "author": "Martin Doyle",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MartinDoyleUK/safe-json-serialiser/issues"
+  },
+  "homepage": "https://github.com/MartinDoyleUK/safe-json-serialiser#readme"
+}
