@@ -22,98 +22,61 @@
 })('safe-json-serialiser', function() {
 
    // Define the module
-   var module = {};
-   module.stringify = function(obj) {
-      console.error('Awooga!');
+   var module = {
+
+      /**
+       * Sanitise the data object
+       *
+       * @instance
+       * @param {Object} obj The unsanitised data
+       * @param {Object[]} ancestors The ancestors of this data object (to look up circular references)
+       * @returns {Object} The sanitised data
+       */
+      sanitise: function(obj, ancestors) {
+         ancestors = ancestors || [];
+         var safeValue;
+         if (typeof obj === 'function') {
+            safeValue = "[Function]";
+         } else if (!obj || typeof obj !== 'object') {
+            safeValue = obj;
+         } else if (obj.constructor === Array) {
+            safeValue = [];
+            var sanitisedElem;
+            for (var i = 0, j = obj.length; i < j; i++) {
+               sanitisedElem = this.sanitise(obj[i]);
+               safeValue.push(sanitisedElem);
+            }
+         } else if (ancestors.indexOf(obj) !== -1) {
+            safeValue = '[Circular]';
+         } else {
+            safeValue = {};
+            var keys = Object.keys(obj),
+               key,
+               value;
+            for (var i = 0; i < keys.length; i++) {
+               key = keys[i];
+               value = obj[key];
+               safeValue[key] = this.sanitise(value, ancestors.concat(obj));
+            }
+         }
+         return safeValue;
+      },
+
+      /**
+       * Safely stringify the supplied object (functions and circular references are converted to "[Function]" and "[Circular]" respectively).
+       *
+       * @instance
+       * @param {Object} obj The object to be serialised
+       * @param {Function} [replacer] The replacer function to be passed to JSON.stringify after the data is sanitised
+       * @param {String|Number} [space] The spacer parameter to be passed to JSON.stringify after the data is sanitised
+       * @returns {String} The JSONified data
+       */
+      stringify: function(obj, replacer, space) {
+         var safeData = this.sanitise(obj);
+         return JSON.stringify(safeData, replacer, space);
+      }
    };
 
    // Return the public API for the module
    return module;
 });
-
-
-// function safelyJsonify(obj, opts) {
-
-//    // Create the safe object
-//    var safeObj = (function makeSafe(unsafe, ancestors) {
-//       /*jshint maxcomplexity:false,maxstatements:false*/
-
-//       // Setup return value
-//       var safeValue = {};
-
-//       // Deal with data appropriately
-//       if (typeof unsafe === 'function') {
-
-//          // Ignore functions
-//          var functionName = unsafe.name && unsafe.name + '()';
-//          safeValue = functionName || 'function';
-
-//       } else if (!unsafe || typeof unsafe !== 'object') {
-
-//          // Falsy values and non-objects are already safe
-//          safeValue = unsafe;
-
-//       } else if (unsafe.constructor === Array) {
-
-//          // Arrays are safe in themselves, but make their items safe
-//          safeValue = unsafe.map(function(unsafeChild) {
-//             return makeSafe(unsafeChild, ancestors);
-//          });
-
-//       } else if (ancestors.indexOf(unsafe) !== -1) {
-
-//          // Recursion avoidance!
-//          safeValue = '[recursive object]';
-
-//       } else if (opts.maxDepth !== -1 && ancestors.length === opts.maxDepth) {
-
-//          // Handle max-depth exceptions
-//          safeValue = '[object beyond max-depth]';
-
-//       } else {
-
-//          // A normal object, so recurse through its properties
-//          var keys = Object.keys(unsafe),
-//             key,
-//             value;
-//          for (var i = 0; i < keys.length; i++) {
-
-//             // Variables
-//             key = keys[i];
-//             try {
-//                value = unsafe[key];
-//             } catch (e) {
-//                value = 'Error (see console for details): ' + e.message;
-//                console.warn('Unable to access \'' + key + '\' property on object: ', unsafe);
-//             }
-
-//             // Check against max children
-//             if (opts.maxChildren !== -1 && i === opts.maxChildren) {
-//                safeValue['MAXIMUM CHILDREN'] = 'Maximum child-property count reached';
-//                break;
-//             }
-
-//             // Ensure key isn't explicitly excluded
-//             if (opts.excludedKeys.indexOf(key) !== -1) {
-//                safeValue[key] = '[key excluded]';
-//                continue;
-//             }
-
-//             // Make the value safe before adding to the return object
-//             safeValue[key] = makeSafe(value, ancestors.concat(unsafe));
-//          }
-//       }
-
-//       // If we end up with a string, make the linebreaks safe
-//       if (typeof safeValue === 'string') {
-//          safeValue = safeValue.replace(/\r/g, '').replace(/\n/g, '\\n');
-//       }
-
-//       // Pass back the safe object
-//       return safeValue;
-
-//    })(obj, []);
-
-//    // Pass back the safely JSONified object
-//    return JSON.stringify(safeObj, null, 2);
-// }
