@@ -2,7 +2,7 @@
   "name": "safe-json-serialiser",
   "version": "0.0.1",
   "description": "Safely convert an object with circular references to JSON",
-  "main": "serialiser.js",
+  "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
