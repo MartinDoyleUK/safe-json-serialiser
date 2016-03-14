@@ -62,21 +62,16 @@
             safeValue = [];
             var sanitisedElem;
             for (var i = 0, j = obj.length; i < j; i++) {
-               sanitisedElem = this.sanitise(obj[i], ancestors.concat(obj));
+               sanitisedElem = this.sanitise(obj[i], ancestors);
                safeValue.push(sanitisedElem);
             }
          } else if (ancestors.indexOf(obj) !== -1) {
             safeValue = '[Circular]';
          } else {
             safeValue = {};
-            var keys = Object.keys(obj),
-               key,
-               value;
-            for (var i = 0; i < keys.length; i++) {
-               key = keys[i];
-               value = obj[key];
-               safeValue[key] = this.sanitise(value, ancestors.concat(obj));
-            }
+            Object.keys(obj).forEach(function(key){
+               safeValue[key] = this.sanitise(obj[key], ancestors.concat(obj));
+            }, this);
          }
          return safeValue;
       },
