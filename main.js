@@ -23,7 +23,7 @@
 
    // Define environment variables
    var Environment = {
-      MAX_DEPTH: 20
+      maxDepth: 10
    };
 
    // Define the module
@@ -56,6 +56,8 @@
             safeValue = "[Function]";
          } else if (!obj || typeof obj !== 'object') {
             safeValue = obj;
+         } else if (ancestors.length === Environment.maxDepth) {
+            safeValue = '[Max-depth (' + Environment.maxDepth + ') reached]';
          } else if (obj.constructor === Array) {
             safeValue = [];
             var sanitisedElem;
@@ -65,8 +67,6 @@
             }
          } else if (ancestors.indexOf(obj) !== -1) {
             safeValue = '[Circular]';
-         } else if (ancestors.length === Environment.MAX_DEPTH) {
-            safeValue = '[Max-depth (' + Environment.MAX_DEPTH + ') reached]';
          } else {
             safeValue = {};
             var keys = Object.keys(obj),
