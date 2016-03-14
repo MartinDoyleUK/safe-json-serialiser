@@ -23,7 +23,7 @@
 
    // Define constants (still ES5 at the moment)
    var Constants = {
-      MAX_DEPTH = 20;
+      MAX_DEPTH: 20
    };
 
    // Define the module
