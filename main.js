@@ -21,6 +21,11 @@
    }
 })('safe-json-serialiser', function() {
 
+   // Define constants (still ES5 at the moment)
+   var Constants = {
+      MAX_DEPTH = 20;
+   };
+
    // Define the module
    var module = {
 
@@ -48,6 +53,8 @@
             }
          } else if (ancestors.indexOf(obj) !== -1) {
             safeValue = '[Circular]';
+         } else if (ancestors.length === Constants.MAX_DEPTH) {
+            safeValue = '[Max-depth (' + Constants.MAX_DEPTH + ') reached]';
          } else {
             safeValue = {};
             var keys = Object.keys(obj),
