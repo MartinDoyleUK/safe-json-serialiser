@@ -21,13 +21,25 @@
    }
 })('safe-json-serialiser', function() {
 
-   // Define constants (still ES5 at the moment)
-   var Constants = {
+   // Define environment variables
+   var Environment = {
       MAX_DEPTH: 20
    };
 
    // Define the module
    var module = {
+
+      /**
+       * Update the environment variables
+       *
+       * @instance
+       * @param {Object} conf The updated values
+       */
+      configEnvironment: function(conf) {
+         Object.keys(conf).forEach(function(key) {
+            Environment[key] = conf[key];
+         });
+      },
 
       /**
        * Sanitise the data object
@@ -53,8 +65,8 @@
             }
          } else if (ancestors.indexOf(obj) !== -1) {
             safeValue = '[Circular]';
-         } else if (ancestors.length === Constants.MAX_DEPTH) {
-            safeValue = '[Max-depth (' + Constants.MAX_DEPTH + ') reached]';
+         } else if (ancestors.length === Environment.MAX_DEPTH) {
+            safeValue = '[Max-depth (' + Environment.MAX_DEPTH + ') reached]';
          } else {
             safeValue = {};
             var keys = Object.keys(obj),
