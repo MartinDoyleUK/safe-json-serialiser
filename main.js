@@ -62,7 +62,7 @@
             safeValue = [];
             var sanitisedElem;
             for (var i = 0, j = obj.length; i < j; i++) {
-               sanitisedElem = this.sanitise(obj[i]);
+               sanitisedElem = this.sanitise(obj[i], ancestors.concat(obj));
                safeValue.push(sanitisedElem);
             }
          } else if (ancestors.indexOf(obj) !== -1) {
