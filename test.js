@@ -3,17 +3,21 @@ var safeJson = require('./main');
 
 // Setup test objects
 var testObj1 = {
-      foo: 'bar'
+      a: '1'
    },
    testObj2 = {
-      yes: ['no', 'maybe'],
-      wibble: testObj1
+      b: [2, 3],
+      c: testObj1,
+      d: [{
+         e: '4'
+      }]
    };
-testObj1.baz = testObj2;
+testObj1.f = testObj2;
+testObj2.d[0].g = testObj2.d[0];
 
 // Perform test
 var result = safeJson.stringify(testObj1),
-   expected = '{"foo":"bar","baz":{"yes":["no","maybe"],"wibble":"$ref(baz.wibble)"}}';
+   expected = '{"a":"1","f":{"b":[2,3],"c":{"$circularRef":"$.f"},"d":[{"e":"4","g":{"$circularRef":"$.f.d[0]"}}]}}';
 
 // Handle results
 if (result !== expected) {

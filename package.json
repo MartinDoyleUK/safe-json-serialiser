@@ -1,6 +1,6 @@
 {
   "name": "safe-json-serialiser",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Safely convert an object with circular references to JSON",
   "main": "main.js",
   "scripts": {

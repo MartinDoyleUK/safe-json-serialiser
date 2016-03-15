@@ -50,32 +50,40 @@
        * @returns {Object} The sanitised data
        */
       sanitise: function(obj, ancestors) {
-         ancestors = ancestors || {
-            stack: [],
-            path: []
-         };
-         var safeValue;
+         var currAncestors = ancestors || {
+               stack: [],
+               path: ["$"]
+            },
+            currPath = currAncestors.path[currAncestors.path.length - 1],
+            prevPath = currAncestors.path[currAncestors.path.length - 2],
+            safeValue,
+            stackPos;
          if (typeof obj === 'function') {
             safeValue = "[Function]";
          } else if (!obj || typeof obj !== 'object') {
             safeValue = obj;
-         } else if (ancestors.length === Environment.maxDepth) {
+         } else if (currAncestors.length === Environment.maxDepth) {
             safeValue = '[Max-depth (' + Environment.maxDepth + ') reached]';
          } else if (obj.constructor === Array) {
             safeValue = [];
             var sanitisedElem;
             for (var i = 0, j = obj.length; i < j; i++) {
-               sanitisedElem = this.sanitise(obj[i], ancestors);
+               sanitisedElem = this.sanitise(obj[i], {
+                  stack: currAncestors.stack,
+                  path: currAncestors.path.concat(currPath + '[' + i + ']')
+               });
                safeValue.push(sanitisedElem);
             }
-         } else if (ancestors.stack.indexOf(obj) !== -1) {
-            safeValue = '$ref(' + ancestors.path.join('.') + ')';
+         } else if ((stackPos = currAncestors.stack.indexOf(obj)) !== -1) {
+            safeValue = {
+               $circularRef: prevPath
+            };
          } else {
             safeValue = {};
-            Object.keys(obj).forEach(function(key){
+            Object.keys(obj).forEach(function(key) {
                safeValue[key] = this.sanitise(obj[key], {
-                  stack: ancestors.stack.concat(obj),
-                  path: ancestors.path.concat(key)
+                  stack: currAncestors.stack.concat(obj),
+                  path: currAncestors.path.concat(currPath + "." + key)
                });
             }, this);
          }
