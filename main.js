@@ -50,7 +50,10 @@
        * @returns {Object} The sanitised data
        */
       sanitise: function(obj, ancestors) {
-         ancestors = ancestors || [];
+         ancestors = ancestors || {
+            stack: [],
+            path: []
+         };
          var safeValue;
          if (typeof obj === 'function') {
             safeValue = "[Function]";
@@ -65,12 +68,15 @@
                sanitisedElem = this.sanitise(obj[i], ancestors);
                safeValue.push(sanitisedElem);
             }
-         } else if (ancestors.indexOf(obj) !== -1) {
-            safeValue = '[Circular]';
+         } else if (ancestors.stack.indexOf(obj) !== -1) {
+            safeValue = '$ref(' + ancestors.path.join('.') + ')';
          } else {
             safeValue = {};
             Object.keys(obj).forEach(function(key){
-               safeValue[key] = this.sanitise(obj[key], ancestors.concat(obj));
+               safeValue[key] = this.sanitise(obj[key], {
+                  stack: ancestors.stack.concat(obj),
+                  path: ancestors.path.concat(key)
+               });
             }, this);
          }
          return safeValue;
